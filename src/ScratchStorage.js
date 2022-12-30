@@ -1,6 +1,7 @@
 const log = require('./log');
 
 const BuiltinHelper = require('./BuiltinHelper');
+const LocalHelper = require('./LocalHelper');
 const WebHelper = require('./WebHelper');
 
 const _Asset = require('./Asset');
@@ -12,6 +13,7 @@ class ScratchStorage {
         this.defaultAssetId = {};
 
         this.builtinHelper = new BuiltinHelper(this);
+        this.localHelper = new LocalHelper(this);
         this.webHelper = new WebHelper(this);
         this.builtinHelper.registerDefaultAssets(this);
 
@@ -21,9 +23,13 @@ class ScratchStorage {
                 priority: 100
             },
             {
+                helper: this.localHelper,
+                priority: -50
+            },
+            {
                 helper: this.webHelper,
                 priority: -100
-            }
+            },
         ];
     }
 
@@ -222,7 +228,7 @@ class ScratchStorage {
         dataFormat = dataFormat || assetType.runtimeFormat;
         return new Promise(
             (resolve, reject) =>
-                this.webHelper.store(assetType, dataFormat, data, assetId)
+                this.localHelper.store(assetType, dataFormat, data, assetId)
                     .then(body => {
                         this.builtinHelper._store(assetType, dataFormat, data, body.id);
                         return resolve(body);
