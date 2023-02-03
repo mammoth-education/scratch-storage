@@ -52,9 +52,6 @@ class LocalHelper extends Helper {
     store = (assetType, dataFormat, data, assetId) => {
         dataFormat = dataFormat || assetType.runtimeFormat;
         switch (dataFormat) {
-            case DataFormat.JSON:
-                data = JSON.stringify(data);
-                break;
             case DataFormat.WAV:
                 data = Array.from(data);
                 break;
@@ -73,19 +70,19 @@ class LocalHelper extends Helper {
         dataFormat = dataFormat || assetType.runtimeFormat;
         let data = this.assetDatas[assetType.name][assetId];
 
-        switch (dataFormat) {
-            case DataFormat.WAV:
-                data = Uint8Array.from(data);
-                break;
-            case DataFormat.SVG:
-                data = Uint8Array.from(data);
-                break;
-        }
         if (data) {
+            switch (dataFormat) {
+                case DataFormat.WAV:
+                    data = Uint8Array.from(data);
+                    break;
+                case DataFormat.SVG:
+                    data = Uint8Array.from(data);
+                    break;
+            }
             const asset = new Asset(assetType, assetId, dataFormat, data);
             return Promise.resolve(asset);
         } else {
-            return Promise.resolve(null);
+            return null;
         }
     }
 }
