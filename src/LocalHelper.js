@@ -68,22 +68,55 @@ class LocalHelper extends Helper {
     }
     load = (assetType, assetId, dataFormat) => {
         dataFormat = dataFormat || assetType.runtimeFormat;
-        let data = this.assetDatas[assetType.name][assetId];
-
-        if (data) {
-            switch (dataFormat) {
-                case DataFormat.WAV:
-                    data = Uint8Array.from(data);
-                    break;
-                case DataFormat.SVG:
-                    data = Uint8Array.from(data);
-                    break;
-            }
-            const asset = new Asset(assetType, assetId, dataFormat, data);
-            return Promise.resolve(asset);
-        } else {
+        if (window.cordova && window.cordova.platformId !== 'ios')  {
             return null;
         }
+        let url = cordova.file.applicationDirectory + "www" +`/static/asset/${assetId}.${dataFormat}`;
+        return this.readIosFileData(url).then((data) => {
+            if (data) {
+                switch (dataFormat) {
+                    case DataFormat.WAV:
+                        data = new Uint8Array(data);
+                        break;
+                    case DataFormat.SVG:
+                        data = new Uint8Array(data);
+                        break;
+                }
+                const asset = new Asset(assetType, assetId, dataFormat, data);
+                return asset;
+            } else { 
+                return null;
+            }
+        }, () => null);
+        
+    }
+    readIosFileData = (fileUrl) => {
+        return new Promise(function(resolve, reject) {
+          // 获取文件
+          window.resolveLocalFileSystemURL(fileUrl, function(fileEntry) {
+            // 获取到文件的 FileEntry 对象
+            // 读取文件内容
+            fileEntry.file(function(file) {
+              // 创建 FileReader 对象
+              var fileReader = new FileReader();
+              // 读取文件内容
+              fileReader.onloadend = function() {
+                  // 文件内容已经读取完毕
+                var fileData = this.result; // 获取到的文件数据
+                console.log("fileData",fileData)
+                // var uint8Array = new Uint8Array(fileData)
+                // console.log("Uint8Array",fileData)
+                resolve(fileData);
+              };
+              // 开始读取文件
+              fileReader.readAsArrayBuffer(file);
+              
+            });
+          }, function(error) {
+            // 获取文件失败
+            reject(error);
+          });
+        });
     }
 }
 
