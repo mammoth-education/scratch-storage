@@ -81,6 +81,9 @@ class LocalHelper extends Helper {
                     case DataFormat.SVG:
                         data = new Uint8Array(data);
                         break;
+                    case DataFormat.PNG:
+                        data = new Uint8Array(data);
+                        break;
                 }
                 const asset = new Asset(assetType, assetId, dataFormat, data);
                 return asset;
