@@ -60,7 +60,7 @@ class LocalHelper extends Helper {
                 break;
         }
         this.assetDatas[assetType.name][assetId] = data
-        window.localStorage.setItem("asset-" + assetType.name, JSON.stringify(this.assetDatas[assetType.name]));
+        // window.localStorage.setItem("asset-" + assetType.name, JSON.stringify(this.assetDatas[assetType.name]));
         return Promise.resolve({
             status: 'ok',
             id: assetId
@@ -68,29 +68,71 @@ class LocalHelper extends Helper {
     }
     load = (assetType, assetId, dataFormat) => {
         dataFormat = dataFormat || assetType.runtimeFormat;
-        if (window.cordova && window.cordova.platformId !== 'ios')  {
+        let data = this.assetDatas[assetType.name][assetId];
+        if(window.cordova){
+           if(window.cordova.platformId === 'ios'){
+                let url = cordova.file.applicationDirectory + "www" +`/static/asset/${assetId}.${dataFormat}`;
+                return this.readIosFileData(url).then((data) => {
+                    if (data) {
+                        switch (dataFormat) {
+                            case DataFormat.WAV:
+                                data = new Uint8Array(data);
+                                break;
+                            case DataFormat.SVG:
+                                data = new Uint8Array(data);
+                                break;
+                            case DataFormat.PNG:
+                                data = new Uint8Array(data);
+                                break;
+                        }
+                        const asset = new Asset(assetType, assetId, dataFormat, data);
+                        return asset;
+                    } else { 
+                        return null;
+                    }
+                }, () => null);
+           }else{
             return null;
-        }
-        let url = cordova.file.applicationDirectory + "www" +`/static/asset/${assetId}.${dataFormat}`;
-        return this.readIosFileData(url).then((data) => {
+           }
+        }else{
             if (data) {
                 switch (dataFormat) {
                     case DataFormat.WAV:
-                        data = new Uint8Array(data);
+                        data = Uint8Array.from(data);
                         break;
                     case DataFormat.SVG:
-                        data = new Uint8Array(data);
-                        break;
-                    case DataFormat.PNG:
-                        data = new Uint8Array(data);
+                        data = Uint8Array.from(data);
                         break;
                 }
                 const asset = new Asset(assetType, assetId, dataFormat, data);
-                return asset;
-            } else { 
+                return Promise.resolve(asset);
+            } else {
                 return null;
             }
-        }, () => null);
+        }
+        // if (window.cordova && window.cordova.platformId !== 'ios')  {
+        //     return null;
+        // }
+        // let url = cordova.file.applicationDirectory + "www" +`/static/asset/${assetId}.${dataFormat}`;
+        // return this.readIosFileData(url).then((data) => {
+        //     if (data) {
+        //         switch (dataFormat) {
+        //             case DataFormat.WAV:
+        //                 data = new Uint8Array(data);
+        //                 break;
+        //             case DataFormat.SVG:
+        //                 data = new Uint8Array(data);
+        //                 break;
+        //             case DataFormat.PNG:
+        //                 data = new Uint8Array(data);
+        //                 break;
+        //         }
+        //         const asset = new Asset(assetType, assetId, dataFormat, data);
+        //         return asset;
+        //     } else { 
+        //         return null;
+        //     }
+        // }, () => null);
         
     }
     readIosFileData = (fileUrl) => {
