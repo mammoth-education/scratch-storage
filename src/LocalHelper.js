@@ -110,30 +110,6 @@ class LocalHelper extends Helper {
                 return null;
             }
         }
-        // if (window.cordova && window.cordova.platformId !== 'ios')  {
-        //     return null;
-        // }
-        // let url = cordova.file.applicationDirectory + "www" +`/static/asset/${assetId}.${dataFormat}`;
-        // return this.readIosFileData(url).then((data) => {
-        //     if (data) {
-        //         switch (dataFormat) {
-        //             case DataFormat.WAV:
-        //                 data = new Uint8Array(data);
-        //                 break;
-        //             case DataFormat.SVG:
-        //                 data = new Uint8Array(data);
-        //                 break;
-        //             case DataFormat.PNG:
-        //                 data = new Uint8Array(data);
-        //                 break;
-        //         }
-        //         const asset = new Asset(assetType, assetId, dataFormat, data);
-        //         return asset;
-        //     } else { 
-        //         return null;
-        //     }
-        // }, () => null);
-        
     }
     readIosFileData = (fileUrl) => {
         return new Promise(function(resolve, reject) {
